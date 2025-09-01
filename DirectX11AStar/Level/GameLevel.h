@@ -28,16 +28,19 @@ public:
 	virtual void OnUpdate(float deltaTime) override;
 
 private:
-	void CreateAxisLines();      // XYZ Ãà ±×¸®±â
-	void Create3DGrid();         // 3D ±×¸®µå ½Ã°¢È­ »ı¼º
-	void UpdateGridVisualization(int x, int y, int z); // ±×¸®µå ½Ã°¢È­ ¾÷µ¥ÀÌÆ®
-	void UpdateNodeVisualization(int x, int y, int z, NodeState3D state); // °³º° ³ëµå »ö»ó ¾÷µ¥ÀÌÆ®
-	void StartPathfindingVisualization(); // °æ·ÎÃ£±â ½Ã°¢È­ ½ÃÀÛ
-	void ResetAndRestartVisualization(); // RÅ°·Î Àç¼³Á¤ ¹× Àç½ÃÀÛ
-	void GenerateRandomStartEnd(); // ·£´ı ½ÃÀÛÁ¡°ú ³¡Á¡ »ı¼º
-	NodeColorInfo GetNodeColorInfo(NodeState3D state, int x = -1, int y = -1, int z = -1); // ³ëµå »óÅÂº° »ö»ó°ú ¾ËÆÄ°ª ¹İÈ¯
-	bool ShouldUseSolidCube(NodeState3D state); // ¼Ö¸®µå Å¥ºê¸¦ »ç¿ëÇØ¾ß ÇÏ´ÂÁö ÆÇ´Ü
-	bool IsOuterSurfaceNode(int x, int y, int z); // ±×¸®µå ¿Ü°û¸é¿¡ ÀÖ´Â ³ëµåÀÎÁö È®ÀÎ
+	void CreateAxisLines();      // XYZ ì¶• ê·¸ë¦¬ê¸°
+	void Create3DGrid();         // 3D ê·¸ë¦¬ë“œ ìƒì„±
+	void UpdateGridVisualization(int x, int y, int z); // ê·¸ë¦¬ë“œ ì‹œê°í™” ì—…ë°ì´íŠ¸
+	void UpdateNodeVisualization(int x, int y, int z, NodeState3D state); // ê°œë³„ ë…¸ë“œ ìƒ‰ìƒ ì—…ë°ì´íŠ¸
+	void StartPathfindingVisualization(); // ê²½ë¡œì°¾ê¸° ì‹œê°í™” ì‹œì‘
+	void ResetAndRestartVisualization(); // Rí‚¤ë¡œ ì¬ì„¤ì ˆ ë° ì¬ì‹œì‘
+	void RefreshAllNodeVisualization(); // ëª¨ë“  ë…¸ë“œ ì‹œê°í™” ìƒˆë¡œê³ ì¹¨
+	void GenerateRandomStartEnd(); // ë Œë¤ ì‹œì‘ì ê³¼ ëì  ìƒì„±
+	NodeColorInfo GetNodeColorInfo(NodeState3D state, int x = -1, int y = -1, int z = -1); // ë…¸ë“œ ìƒíƒœë³„ ìƒ‰ìƒê³¼ ì•ŒíŒŒê°’ ë°˜í™˜
+	bool ShouldUseSolidCube(NodeState3D state); // ì†”ë¦¬ë“œ íë¸Œë¥¼ ì‚¬ìš©í• ì§€ ë§ì§€
+	bool IsOuterSurfaceNode(int x, int y, int z); // ê·¸ë¦¬ë“œ ì™¸ê³½ë©´ì— ìˆëŠ” ë…¸ë“œì¸ì§€ í™•ì¸
+	
+public:
 
 	std::shared_ptr<Player> player;
 	std::shared_ptr<CameraActor> camera;
@@ -46,7 +49,9 @@ private:
 
 	// 3D Grid visualization
 	std::vector<std::shared_ptr<Actor>> gridCubes;
-	std::vector<std::shared_ptr<StaticMeshComponent>> gridMeshComponents; // »ö»ó ¾÷µ¥ÀÌÆ®¿ë
+	std::vector<std::shared_ptr<StaticMeshComponent>> gridMeshComponents; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½
+	std::vector<NodeState3D> currentNodeStates; // í˜„ì¬ ë…¸ë“œ ìƒíƒœ ì €ì¥
+	
 	int gridSize = 10;  // 30x30x30 grid
 	bool isPathfindingActive = false;
 
@@ -55,6 +60,11 @@ private:
 	int endX = 0, endY = 0, endZ = 0;
 
 	// Visualization options
-	bool showOpenNodes = true;    // OÅ°·Î Åä±Û
-	bool showClosedNodes = true;  // CÅ°·Î Åä±Û
+	enum class ObstacleDisplayMode {
+		Wireframe = 0,    // ì™€ì´ì–´í”„ë ˆì„
+		Solid = 1,        // ì†”ë¦¬ë“œ
+		Hidden = 2        // ìˆ¨ê¹€
+	};
+	ObstacleDisplayMode obstacleDisplayMode = ObstacleDisplayMode::Wireframe;  // ì¥ì• ë¬¼ í‘œì‹œ ëª¨ë“œ (3ë‹¨ê³„)
+	bool showOpenNodes = true;    // Open ë…¸ë“œ í‘œì‹œ
 };

@@ -20,7 +20,7 @@
 GameLevel::GameLevel()
 {
     // 3D A* pathfinder �ʱ�ȭ (������ ������ �� ����ϰ�)
-    pathfinder3D = new AStar3D(gridSize, gridSize, gridSize, 1.2f);
+    pathfinder3D = new AStar3D(gridSize, gridSize, gridSize, 3.0f);
 
     //// Player �߰� - ��Ȯ�� ����(0,0,0)�� ��ġ
     //player = std::make_shared<Player>();
@@ -31,7 +31,7 @@ GameLevel::GameLevel()
     // CameraActor �߰� - �̹���ó�� ����� �������� ����
     camera = std::make_shared<CameraActor>();
     // �׸��带 �밢������ �ణ ������ �����ٺ��� ���� ��ġ
-    camera->transform.position = Vector3(8.0f, 8.0f, -12.0f);
+    camera->transform.position = Vector3(0.0f, 0.0f, -35.0f);
 
     // �ʱ� ī�޶� ���� �� ���콺 ����
     camera->SetCameraYaw(0.0f);// = 0.0f;
@@ -70,20 +70,34 @@ void GameLevel::OnUpdate(float deltaTime)
         ResetAndRestartVisualization();
     }
 
-    // OŰ �Է� üũ - Open ��� ǥ�� ���
-    if (Input::Get().GetKeyDown('O')) {
-        showOpenNodes = !showOpenNodes;
+    // 1키 입력 체크 - 장애물 표시 3단계 토글 (와이어프레임 -> 솔리드 -> 숨김 -> 와이어프레임)
+    if (Input::Get().GetKeyDown('1')) {
+        switch (obstacleDisplayMode) {
+        case ObstacleDisplayMode::Wireframe:
+            obstacleDisplayMode = ObstacleDisplayMode::Solid;
+            break;
+        case ObstacleDisplayMode::Solid:
+            obstacleDisplayMode = ObstacleDisplayMode::Hidden;
+            break;
+        case ObstacleDisplayMode::Hidden:
+            obstacleDisplayMode = ObstacleDisplayMode::Wireframe;
+            break;
+        }
+        // 모든 그리드 노드를 다시 업데이트
+        RefreshAllNodeVisualization();
     }
 
-    // CŰ �Է� üũ - Closed ��� ǥ�� ���
-    if (Input::Get().GetKeyDown('C')) {
-        showClosedNodes = !showClosedNodes;
+    // 2키 입력 체크 - Open 노드 표시 토글
+    if (Input::Get().GetKeyDown('2')) {
+        showOpenNodes = !showOpenNodes;
+        // 모든 그리드 노드를 다시 업데이트
+        RefreshAllNodeVisualization();
     }
 }
 
 void GameLevel::CreateAxisLines()
 {
-    float lineLength = 15.0f; // �׸��� ũ�⿡ �°� �� ���� ����
+    float lineLength = 30.0f; // �׸��� ũ�⿡ �°� �� ���� ����
 
     // X�� ���� (������)
     auto xLineActor = std::make_shared<Actor>();
@@ -148,21 +162,24 @@ void GameLevel::CreateAxisLines()
 
 void GameLevel::Create3DGrid()
 {
-    // ��ֹ��� �����ϰ� ��ġ 
+    // 장애물을 랜덤하게 배치 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
 
     gridMeshComponents.clear();
     gridMeshComponents.reserve(gridSize * gridSize * gridSize);
+    
+    currentNodeStates.clear();
+    currentNodeStates.resize(gridSize * gridSize * gridSize, NodeState3D::Empty);
 
     for (int x = 0; x < gridSize; x++) {
         for (int y = 0; y < gridSize; y++) {
             for (int z = 0; z < gridSize; z++) {
-                // n% Ȯ���� ��ֹ� ����
-                bool isObstacle = dis(gen) < 0.1f;
+                // 15% 확률로 장애물 생성
+                bool isObstacle = dis(gen) < 0.15f;
 
-                // �������� ������ ��ֹ��� ������ ����
+                // 시작점과 도착점은 장애물이 아니도록 설정
                 if ((x == startX && y == startY && z == startZ) ||
                     (x == endX && y == endY && z == endZ)) {
                     isObstacle = false;
@@ -173,47 +190,50 @@ void GameLevel::Create3DGrid()
                 auto cubeActor = std::make_shared<Actor>();
                 auto cubeMeshComponent = std::make_shared<StaticMeshComponent>();
 
-                // ��� ť��� CubeMesh ���
                 cubeMeshComponent->SetMesh(std::make_shared<CubeMesh>());
 
-                // �������� ������ �ָ���, �������� ���̾�������
-                bool isSpecialNode = (x == startX && y == startY && z == startZ) ||
-                    (x == endX && y == endY && z == endZ);
-                cubeMeshComponent->SetWireframe(!isSpecialNode);
+                // 노드 상태에 따른 와이어프레임 설정은 나중에 적용
 
-                // ��ġ ���� (�׸��� �߽��� ��������)
+                // 위치 설정 (그리드 중심을 원점으로)
                 Vector3 cubePos = pathfinder3D->GridToWorld(x, y, z);
                 cubeActor->transform.position = cubePos;
                 cubeActor->transform.scale = Vector3(1.0f, 1.0f, 1.0f);
-                //// �ʱ� ���� �� ������ ����
-                //Vector3 initialColor;
-                //float alpha = 1.0f;
-                //
-                //if (x == startX && y == startY && z == startZ) {
-                //    // ������
-                //    initialColor = GetNodeColor(NodeState3D::Start);
-                //    alpha = 1.0f;
-                //} else if (x == endX && y == endY && z == endZ) {
-                //    // ����
-                //    initialColor = GetNodeColor(NodeState3D::Target);
-                //    alpha = 1.0f;
-                //} else if (isObstacle) {
-                //    // ��ֹ�
-                //    initialColor = GetNodeColor(NodeState3D::Obstacle);
-                //    alpha = 0.3f;
-                //} else {
-                //    // �� ����
-                //    initialColor = GetNodeColor(NodeState3D::Empty);
-                //    alpha = 1.0f;
-                //}
-                //
-                //cubeMeshComponent->SetMaterialColor(initialColor, alpha);
 
-                // ���̴� ����
                 std::weak_ptr<DefaultShader> shader;
                 if (ShaderLoader::Get().Load<DefaultShader>(shader)) {
                     cubeMeshComponent->AddShader(shader);
                 }
+
+                // 노드 상태 설정
+                int index = z * gridSize * gridSize + y * gridSize + x;
+                NodeState3D nodeState;
+                if (x == startX && y == startY && z == startZ) {
+                    nodeState = NodeState3D::Start;
+                } else if (x == endX && y == endY && z == endZ) {
+                    nodeState = NodeState3D::Target;
+                } else if (isObstacle) {
+                    nodeState = NodeState3D::Obstacle;
+                } else {
+                    nodeState = NodeState3D::Empty;
+                }
+                currentNodeStates[index] = nodeState;
+
+                // 토글 상태에 따른 표시 여부 결정
+                NodeColorInfo initialColorInfo;
+                bool useSolidCube;
+                
+                if (nodeState == NodeState3D::Obstacle && obstacleDisplayMode == ObstacleDisplayMode::Hidden) {
+                    // 장애물이지만 숨김 모드인 경우 Empty로 표시
+                    initialColorInfo = GetNodeColorInfo(NodeState3D::Empty, x, y, z);
+                    useSolidCube = ShouldUseSolidCube(NodeState3D::Empty);
+                } else {
+                    // 일반적인 경우 (와이어프레임 또는 솔리드 모드 포함)
+                    initialColorInfo = GetNodeColorInfo(nodeState, x, y, z);
+                    useSolidCube = ShouldUseSolidCube(nodeState);
+                }
+                
+                cubeMeshComponent->SetMaterialColor(initialColorInfo.color, initialColorInfo.alpha);
+                cubeMeshComponent->SetWireframe(!useSolidCube);
 
                 cubeActor->AddComponent(cubeMeshComponent);
                 AddActor(cubeActor);
@@ -232,38 +252,43 @@ void GameLevel::UpdateGridVisualization(int x, int y, int z)
 
 void GameLevel::UpdateNodeVisualization(int x, int y, int z, NodeState3D state)
 {
-    // �ɼǿ� ���� Open/Closed ��� ǥ�� ���� ����
+    // 옵션에 따른 노드 표시 여부 결정
     bool shouldShow = true;
     if (state == NodeState3D::Open && !showOpenNodes) {
         shouldShow = false;
     }
-    if (state == NodeState3D::Closed && !showClosedNodes) {
+    if (state == NodeState3D::Obstacle && obstacleDisplayMode == ObstacleDisplayMode::Hidden) {
         shouldShow = false;
     }
+    if (state == NodeState3D::Closed) {
+        shouldShow = false; // Closed 노드는 항상 표시하지 않음
+    }
 
-    // �׸��� �ε��� ��� (z * width * height + y * width + x)
+    // 그리드 인덱스 계산 (z * width * height + y * width + x)
     int index = z * gridSize * gridSize + y * gridSize + x;
 
     if (index >= 0 && index < gridMeshComponents.size()) {
+        // 현재 노드 상태 업데이트
+        currentNodeStates[index] = state;
         Vector3 color;
         bool useSolidCube;
 
         float alpha = 1.0f;
 
         if (!shouldShow) {
-            //ǥ������ ���� ��� ���� ���·� �ǵ���
-            //bool isObstacle = !pathfinder3D->GetGridNode(x, y, z).isWalkable;
-            //if (isObstacle) {
-            //    color = GetNodeColor(NodeState3D::Obstacle);
-            //    alpha = 1.0f;
-            //} else {
-            //    color = GetNodeColor(NodeState3D::Empty);
-            //    alpha = 1.0f; // �� ������ �ſ� ����
-            //}
+            // 표시하지 않는 경우 원래 상태로 되돌림
+            bool isObstacle = !pathfinder3D->GetGridNode(x, y, z).isWalkable;
+            NodeColorInfo colorInfo;
+            if (isObstacle && obstacleDisplayMode != ObstacleDisplayMode::Hidden) {
+                colorInfo = GetNodeColorInfo(NodeState3D::Obstacle, x, y, z);
+            } else {
+                colorInfo = GetNodeColorInfo(NodeState3D::Empty, x, y, z);
+            }
+            color = colorInfo.color;
+            alpha = colorInfo.alpha;
             useSolidCube = false;
-        }
-        else {
-            // ���������� ǥ��
+        } else {
+            // 상태별로 표시
             NodeColorInfo colorInfo = GetNodeColorInfo(state, x, y, z);
             color = colorInfo.color;
             alpha = colorInfo.alpha;
@@ -272,7 +297,7 @@ void GameLevel::UpdateNodeVisualization(int x, int y, int z, NodeState3D state)
 
         gridMeshComponents[index]->SetMaterialColor(color, alpha);
 
-        // ��� ���¿� ���� ���̾������� ����
+        // 노드 상태에 따른 와이어프레임 설정
         gridMeshComponents[index]->SetWireframe(!useSolidCube);
     }
 }
@@ -285,12 +310,12 @@ NodeColorInfo GameLevel::GetNodeColorInfo(NodeState3D state, int x, int y, int z
 
     switch (state) {
     case NodeState3D::Empty:
-        baseColor = Vector3(1.0f, 1.0f, 1.0f);
+        baseColor = Vector3(0.5f, 0.5f, 0.5f);
         baseAlpha = 1.0f;
         break;
     case NodeState3D::Obstacle:
-        baseColor = Vector3(1.0f, 1.0f, 1.0f);
-        baseAlpha = 0.0f;
+        baseColor = Vector3(0.5f, 0.0f, 1.0f);
+        baseAlpha = 1.0f;
         break;
     case NodeState3D::Start:
         baseColor = Vector3(0.0f, 1.0f, 0.0f);
@@ -318,36 +343,36 @@ NodeColorInfo GameLevel::GetNodeColorInfo(NodeState3D state, int x, int y, int z
         break;
     }
 
-    // ��ġ�� ��ȿ�ϸ� �ܰ�/���ο� ���� ���İ� ����
+    // 위치가 유효하면 외곽/내부에 따라 알파값 조절
     if (x >= 0 && y >= 0 && z >= 0) {
         bool isOuter = IsOuterSurfaceNode(x, y, z);
 
-        // �߿��� ���� (Start, Target, Path)�� ��ġ�� ������� �׻� ���̰�
+        // 중요한 노드들 (Start, Target, Path)은 위치에 관계없이 항상 보이게
         if (state == NodeState3D::Start || state == NodeState3D::Target || state == NodeState3D::Path) {
             return NodeColorInfo(baseColor, baseAlpha);
         }
 
-        // �Ϲ� ������ ���ο� ������ �� �����ϰ�
+        // 일반 노드들은 내부에 있으면 더 투명하게
         if (!isOuter) {
-            // ���� ������ �ſ� �����ϰ� ó��
+            // 내부 노드들을 매우 투명하게 처리
             if (state == NodeState3D::Empty) {
-                baseAlpha = 0.0f; // ���� ����
+                baseAlpha = 0.0f; 
             }
             else if (state == NodeState3D::Obstacle) {
-                baseAlpha = 0.00f; // ���� ����
+                baseAlpha = 1.0f; 
             }
-            else {
-                baseAlpha *= 0.1f; // ���� ���İ��� 10%�� ����
-            }
+            //else {
+            //    baseAlpha *= 0.1f; // ���� ���İ��� 10%�� ����
+            //}
         }
         else {
-            // �ܰ� ������ �ణ �� ���̰�
+            // 외곽 노드들
             if (state == NodeState3D::Empty) {
                 baseAlpha = 0.1f; // �ſ� ���� ������
             }
-            else if (state == NodeState3D::Obstacle) {
-                baseAlpha = 0.1f; // �ణ �� ���̰�
-            }
+            //else if (state == NodeState3D::Obstacle) {
+            //    baseAlpha = 0.5f; // �ణ �� ���̰�
+            //}
         }
     }
 
@@ -357,16 +382,17 @@ NodeColorInfo GameLevel::GetNodeColorInfo(NodeState3D state, int x, int y, int z
 bool GameLevel::ShouldUseSolidCube(NodeState3D state)
 {
     switch (state) {
-    case NodeState3D::Start:
-    case NodeState3D::Target:
-    case NodeState3D::Path:     // ���� ��� (Ȱ��)
-        return true;  // �ָ��� ť�� ���
-    case NodeState3D::Obstacle: // ��ֹ�
-    case NodeState3D::Closed:   // ó���� ��� (Ȱ��)
-    case NodeState3D::Open:     // ���� �������� ��� (Ȱ��)
+    case NodeState3D::Start:    // 시작점
+    case NodeState3D::Target:   // 끝점
+    case NodeState3D::Path:     // 최종경로
+        return true;            // 솔리드
+    case NodeState3D::Obstacle: // 장애물
+        return (obstacleDisplayMode == ObstacleDisplayMode::Solid);  // 모드에 따라 결정
+    case NodeState3D::Closed:   // 클로즈리스트
+    case NodeState3D::Open:     // 오픈리스트
     case NodeState3D::Empty:
     default:
-        return false; // ���̾������� ť�� ���
+        return false;           // 와이어프레임
     }
 }
 
@@ -413,17 +439,19 @@ void GameLevel::StartPathfindingVisualization()
                     // �Ϲ� ������ ���� ��������
                     bool isObstacle = !pathfinder3D->GetGridNode(x, y, z).isWalkable;
                     NodeColorInfo nodeInfo;
-                    if (isObstacle)
+                    
+                    if (isObstacle && obstacleDisplayMode != ObstacleDisplayMode::Hidden)
                     {
                         nodeInfo = GetNodeColorInfo(NodeState3D::Obstacle, x, y, z);
+                        useSolidCube = ShouldUseSolidCube(NodeState3D::Obstacle);
                     }
                     else
                     {
                         nodeInfo = GetNodeColorInfo(NodeState3D::Empty, x, y, z);
+                        useSolidCube = ShouldUseSolidCube(NodeState3D::Empty);
                     }
                     initialColor = nodeInfo.color;
                     alpha = nodeInfo.alpha;
-                    useSolidCube = ShouldUseSolidCube(NodeState3D::Obstacle);
                 }
 
                 // ����� �޽� Ÿ�� ������Ʈ
@@ -431,8 +459,7 @@ void GameLevel::StartPathfindingVisualization()
                 if (index >= 0 && index < gridMeshComponents.size())
                 {
                     gridMeshComponents[index]->SetMaterialColor(initialColor, alpha);
-                    // ���̾������� ���� (�ָ��尡 �ƴϸ� ���̾�������) 
-                    // Todo: ��ֹ��̳� �׸��� ���̾� �ָ��� �ݴ��̸� ���⸦ ����
+
                     gridMeshComponents[index]->SetWireframe(!useSolidCube);
                 }
             }
@@ -461,10 +488,14 @@ void GameLevel::StartPathfindingVisualization()
 
 void GameLevel::ResetAndRestartVisualization()
 {
-    // �̹� ���� ���̸� ����
+    // 이미 진행 중이면 리턴
     if (isPathfindingActive) return;
 
-    // ���� �׸��� ���͵��� ���� ���Ϳ��� ����
+    // 현재 토글 상태 백업 (재시작 후에도 유지하기 위해)
+    ObstacleDisplayMode savedObstacleDisplayMode = obstacleDisplayMode;
+    bool savedShowOpenNodes = showOpenNodes;
+
+    // 기존 그리드 액터들을 씬에서 제거
     for (auto& cubeActor : gridCubes) {
         auto it = std::find(actors.begin(), actors.end(), cubeActor);
         if (it != actors.end()) {
@@ -473,14 +504,19 @@ void GameLevel::ResetAndRestartVisualization()
     }
     gridCubes.clear();
     gridMeshComponents.clear();
+    currentNodeStates.clear();
 
-    // ���ο� ���� �������� ���� ����
+    // 새로운 랜덤 시작점과 도착점 생성
     GenerateRandomStartEnd();
 
-    // 3D �׸��� ����� (���ο� ���� ��ֹ� ��ġ)
+    // 3D 그리드 재생성 (새로운 랜덤 장애물 배치)
     Create3DGrid();
 
-    // ���ã�� �ð�ȭ �ٽ� ����
+    // 토글 상태 복원
+    obstacleDisplayMode = savedObstacleDisplayMode;
+    showOpenNodes = savedShowOpenNodes;
+
+    // 경로찾기 시각화 다시 시작
     StartPathfindingVisualization();
 }
 
@@ -502,4 +538,53 @@ void GameLevel::GenerateRandomStartEnd()
         endZ = dis(gen);
     } while (startX == endX && startY == endY && startZ == endZ);
 }
+
+void GameLevel::RefreshAllNodeVisualization()
+{
+    for (int x = 0; x < gridSize; x++) {
+        for (int y = 0; y < gridSize; y++) {
+            for (int z = 0; z < gridSize; z++) {
+                int index = z * gridSize * gridSize + y * gridSize + x;
+                if (index >= 0 && index < gridMeshComponents.size()) {
+                    NodeState3D currentState = currentNodeStates[index];
+                    
+                    // 표시 여부 결정
+                    bool shouldShow = true;
+                    if (currentState == NodeState3D::Open && !showOpenNodes) {
+                        shouldShow = false;
+                    }
+                    if (currentState == NodeState3D::Obstacle && obstacleDisplayMode == ObstacleDisplayMode::Hidden) {
+                        shouldShow = false;
+                    }
+                    if (currentState == NodeState3D::Closed) {
+                        shouldShow = false; // Closed 노드는 항상 표시하지 않음
+                    }
+
+                    Vector3 color;
+                    float alpha;
+                    bool useSolidCube;
+
+                    if (!shouldShow) {
+                        // 표시하지 않는 경우 기본 상태로 표시
+                        NodeColorInfo emptyInfo = GetNodeColorInfo(NodeState3D::Empty, x, y, z);
+                        color = emptyInfo.color;
+                        alpha = emptyInfo.alpha;
+                        useSolidCube = false;
+                    } else {
+                        // 현재 상태에 맞게 표시
+                        NodeColorInfo colorInfo = GetNodeColorInfo(currentState, x, y, z);
+                        color = colorInfo.color;
+                        alpha = colorInfo.alpha;
+                        useSolidCube = ShouldUseSolidCube(currentState);
+                    }
+
+                    gridMeshComponents[index]->SetMaterialColor(color, alpha);
+                    gridMeshComponents[index]->SetWireframe(!useSolidCube);
+                }
+            }
+        }
+    }
+}
+
+
 

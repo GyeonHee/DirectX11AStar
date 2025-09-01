@@ -14,7 +14,7 @@ public:
 	Level();
 	virtual ~Level();
 
-	// ╥╧╨╖©║ ╬вем╦╕ цъ╟║гр ╤╖ ╩Г©К
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫м╦О©╫ О©╫ъ╟О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫
 	void AddActor(std::shared_ptr<Actor> newActor);
 
 	std::shared_ptr<Actor> GetActor(int idx) const;
@@ -25,14 +25,15 @@ public:
 
 	virtual void OnInit();
 	virtual void OnUpdate(float deltaTime);
+	virtual void OnRenderCustom() {} // Л╩╓Л┼╓М┘─ К═▄К█■К╖│Л²└ Л°└М∙° Й╟─Л┐│ М∙╗Л┬≤
 
 
 protected:
 	std::vector<std::shared_ptr<Actor>> actors;
 
-	// ╦чюн д╚╦ч╤С ©╒ем
+	// О©╫О©╫О©╫О©╫ д╚О©╫ч╤О©╫ О©╫О©╫О©╫О©╫
 	std::shared_ptr<Actor> cameraActor;
 
-	// ╤Сюлф╝ ╬вем
+	// О©╫О©╫О©╫О©╫ф╝ О©╫О©╫О©╫О©╫
 	std::shared_ptr<Actor> lightActor;
 };

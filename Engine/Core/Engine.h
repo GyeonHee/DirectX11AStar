@@ -21,13 +21,13 @@ public:
 
     void Run();
 
-    // ¸ÞÀÎ ·¹º§ ¼³Á¤ ÇÔ¼ö
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     void SetLevel(std::shared_ptr<class Level> newLevel);
 
-    // È­¸é Å©±â º¯°æ ÀÌº¥Æ® ´ëÀÀ ÇÔ¼ö.
+    // È­ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
     void OnResize(uint32 width, uint32 height);
 
-    // ¿£Áø Á¾·á ÇÔ¼ö.
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
     void Quit();
 
     // Getter.
@@ -37,6 +37,7 @@ public:
 
     uint32 Width() const;
     uint32 Height() const;
+    
 
 private:
     // void RenderFrame();
@@ -44,24 +45,24 @@ private:
 protected:
     static Engine* instance;
 
-    // ¿£Áø Á¾·á ÇÃ·¡±×.
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½.
     bool isQuit = false;
 
-    // Ã¢ °´Ã¼.
+    // Ã¢ ï¿½ï¿½Ã¼.
     std::shared_ptr<class Window> window;
 
-    // ·»´õ·¯ °´Ã¼.
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼.
     std::shared_ptr<class Renderer> renderer;
 
-    // ¸ðµ¨ ·Î´õ °´Ã¼.
+    // ï¿½ï¿½ ï¿½Î´ï¿½ ï¿½ï¿½Ã¼.
     std::unique_ptr<class ModelLoader> modelLoader;
 
-    // ¼ÎÀÌ´õ ·Î´õ °´Ã¼.
+    // ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½Î´ï¿½ ï¿½ï¿½Ã¼.
     std::unique_ptr<class ShaderLoader> shaderLoader;
 
-    // ÀÔ·Â ½Ã½ºÅÛ °´Ã¼.
+    // ï¿½Ô·ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼.
     std::unique_ptr<class Input> input;
 
-    // ¸ÞÀÎ ·¹º§.
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
     std::shared_ptr<class Level> mainLevel;
 };

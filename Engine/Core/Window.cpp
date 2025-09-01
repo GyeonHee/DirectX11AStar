@@ -9,38 +9,38 @@ Window::Window(
 	: width(width), height(height), title(title), instance(instance)
 {
 
-	// Ã¢ »ý¼ºÀ» À§ÇÑ ¼Ó¼º ±¸Á¶Ã¼.
+	// Ã¢ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼.
 	WNDCLASS wc = { };
 	wc.lpfnWndProc = messageProcedure;
-	wc.hInstance = instance;		// ÇÁ·Î±×·¥ Æ÷ÀÎÅÍ.
+	wc.hInstance = instance;		// ï¿½ï¿½ï¿½Î±×·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 	wc.lpszClassName = className.c_str();
 
-	// Å¬·¡½º µî·Ï
+	// Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	if (!RegisterClass(&wc))
 	{
-		// ¸Þ½ÃÁö Ãâ·Â#1 - Ãâ·ÂÃ¢(Output) ÀÌ¿ë.
+		// ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½#1 - ï¿½ï¿½ï¿½Ã¢(Output) ï¿½Ì¿ï¿½.
 		OutputDebugStringA("Failed to register a window class\n");
 
-		// ¸Þ½ÃÁö ¹Ú½º ÀÌ¿ë.
+		// ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½Ì¿ï¿½.
 		MessageBoxA(nullptr, "Failed to register a window", "Error", MB_OK);
 
-		// Áß´ÜÁ¡ ¼³Á¤.
+		// ï¿½ß´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		__debugbreak();
 	}
-	// À§Ä¡ (°¡¿îµ¥).
+	// ï¿½ï¿½Ä¡ (ï¿½ï¿½ï¿½îµ¥).
 	unsigned int xPosition = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	unsigned int yPosition = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
-	// Ã¢ Å©±â Á¶Á¤.
+	// Ã¢ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	RECT rect{ 0, 0, (long)width, (long)height };
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-	// Ã¢ Å©±â Àç¼³Á¤
+	// Ã¢ Å©ï¿½ï¿½ ï¿½ç¼³ï¿½ï¿½
 	unsigned int windowWidth = rect.right - rect.left;
 	unsigned int windowHeight = rect.bottom = rect.bottom;
 
 
-	// »ý¼º.
+	// ï¿½ï¿½ï¿½ï¿½.
 	handle = CreateWindow(
 		className.c_str(),      // Window class
 		title.c_str(),          // Window text
@@ -54,27 +54,27 @@ Window::Window(
 		nullptr
 	);
 
-	// »ý¼º ½ÇÆÐÇÏ¸é Á¾·á.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	if (!handle)
 	{
-		// ¸Þ½ÃÁö Ãâ·Â#1 - Ãâ·ÂÃ¢(Output) ÀÌ¿ë.
+		// ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½#1 - ï¿½ï¿½ï¿½Ã¢(Output) ï¿½Ì¿ï¿½.
 		OutputDebugStringA("Failed to create a window class\n");
 
-		// ¸Þ½ÃÁö ¹Ú½º ÀÌ¿ë.
+		// ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½Ì¿ï¿½.
 		MessageBoxA(nullptr, "Failed to create a window", "Error", MB_OK);
 
-		// Áß´ÜÁ¡ ¼³Á¤.
+		// ï¿½ß´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		__debugbreak();
 	}
 
-	// ¾÷µ¥ÀÌÆ® / º¸¿©ÁÖ±â.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® / ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½.
 	ShowWindow(handle, SW_SHOW);
 	UpdateWindow(handle);
 }
 
 Window::~Window()
 {
-	// Å¬·¡½º µî·Ï ÇØÁ¦.
+	// Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	UnregisterClass(className.c_str(), instance);
 }
 

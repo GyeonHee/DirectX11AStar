@@ -22,18 +22,18 @@ public:
 
 	void Destroy();
 
-	// ¿À³Ê½Ê ¼³Á¤
+	// ï¿½ï¿½ï¿½Ê½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	void SetOwner(Level* newOwner) { owner = newOwner; }
 	Level* GetOwner() { return owner; }
 
-	// ÄÄÆ÷³ÍÆ® Ãß°¡ ÇÔ¼ö.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß°ï¿½ ï¿½Ô¼ï¿½.
 	void AddComponent(std::shared_ptr<class Component> newComponent);
 
 	void SetUseRenderTexture(bool newUseRenderTexture);
 
 	bool GetUseRenderTexture() const { return useRenderTexture; }
 
-	// ÄÄÆ÷³ÍÆ® Get ÇÔ¼ö.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Get ï¿½Ô¼ï¿½.
 	template<typename T>
 	std::shared_ptr<T> GetComponent()
 	{
@@ -51,34 +51,35 @@ public:
 	}
 
 	const bool IsActive() const;
+	void SetActive(bool active) { isActive = active; }
 	const bool HasInitialized() const;
 
 	const bool IsSkyBox() const { return isSkyBox; }
 
 public:
-	// ¾×ÅÍÀÇ TRS Á¤º¸¸¦ °ü¸®ÇÏ´Â Æ®·£½ºÆû.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TRS ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 	Transform transform;
 
 protected:
 
-	// ¼ÒÀ¯ ·¹º§(¿À³Ê½Ê)
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Ê½ï¿½)
 	Level* owner = nullptr;
 
-	// ¾×ÅÍÀÇ ÀÌ¸§ (ÀÏ¹ÝÀûÀ¸·Î´Â Hash·Î º¯È¯ÇØ¼­ »ç¿ë).
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ (ï¿½Ï¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ Hashï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½).
 	std::wstring name = TEXT("Actor");
-	// ¾×ÅÍÀÇ ÃÊ±âÈ­ ¿©ºÎ.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½.
 	bool hasInitialized = false;
-	// ¾×ÅÍÀÇ È°¼ºÈ­ ¿©ºÎ.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½.
 	bool isActive = true;
-	// »èÁ¦ ¿©ºÎ.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	bool hasDestroyed = false;
 
-	// ½ºÄ«ÀÌ¹Ú½º ¾×ÅÍ ¿©ºÎ.
+	// ï¿½ï¿½Ä«ï¿½Ì¹Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	bool isSkyBox = false;
 
-	// ÄÄÆ÷³ÍÆ® ¹è¿­.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½è¿­.
 	std::vector<std::shared_ptr<class Component>> components;
 
-	// ·»´õ ÅØ½ºÃ³ »ç¿ë ¿©ºÎ.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	bool useRenderTexture = false;
 };

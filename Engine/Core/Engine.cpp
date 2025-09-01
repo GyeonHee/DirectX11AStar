@@ -7,22 +7,22 @@
 #include "Resource/ModelLoader.h"
 #include <iostream>
 
-// ½Ì±ÛÅæ ÀÎ½ºÅÏ½º ÃÊ±âÈ­
+// ï¿½Ì±ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ ï¿½Ê±ï¿½È­
 Engine* Engine::instance = nullptr;
 
-// À©µµ¿ì ¸Þ½ÃÁö Ã³¸® ÄÝ¹é.
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½Ý¹ï¿½.
 LRESULT Engine::MessageProcedure(
     HWND window,
     uint32 message,
     WPARAM wparam,
     LPARAM lparam)
 {
-    // ÀÏºÎ Ã³¸®.
+    // ï¿½Ïºï¿½ Ã³ï¿½ï¿½.
     switch (message)
     {
-        // Ã¢ »èÁ¦ ¸Þ½ÃÁö.
+        // Ã¢ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½.
     case WM_DESTROY:
-        // ÇÁ·Î±×·¥ Á¾·á ÀÌº¥Æ® ¹ßÇà.
+        // ï¿½ï¿½ï¿½Î±×·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½.
         PostQuitMessage(0);
         return 0;
 
@@ -30,14 +30,14 @@ LRESULT Engine::MessageProcedure(
         DestroyWindow(window);
         return 0;
 
-        // Å°´Ù¿î.
+        // Å°ï¿½Ù¿ï¿½.
     case WM_KEYDOWN:
         if (wparam == VK_ESCAPE)
         {
-            // Á¾·á ¸Þ½ÃÁö ¹Ú½º ¶ç¿ì±â.
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½.
             if (MessageBoxA(nullptr, "Quit?", "Quit Program", MB_YESNO) == IDYES)
             {
-                // Yes ¹öÆ° ´©¸£¸é Ã¢ Á¦°Å.
+                // Yes ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¢ ï¿½ï¿½ï¿½ï¿½.
                 DestroyWindow(window);
                 return 0;
             }
@@ -45,10 +45,10 @@ LRESULT Engine::MessageProcedure(
 
         return 0;
 
-        // Å°¾÷.
+        // Å°ï¿½ï¿½.
     }
 
-    // ±âº» Ã³¸®.
+    // ï¿½âº» Ã³ï¿½ï¿½.
     return DefWindowProc(window, message, wparam, lparam);
 }
 
@@ -56,14 +56,14 @@ Engine::Engine(HINSTANCE hInstance, const std::wstring& title, uint32 width, uin
 {
     instance = this;
     window = std::make_shared<Window>(hInstance, MessageProcedure, title, width, height);
-    // ·»´õ·¯ »ý¼º.
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
     renderer = std::make_shared<Renderer>(width, height, window->Handle());
 
     modelLoader = std::make_unique<ModelLoader>();
 
     shaderLoader = std::make_unique<ShaderLoader>();
 
-    // Input ½Ã½ºÅÛ ÃÊ±âÈ­
+    // Input ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     input = std::make_unique<Input>();
 }
 
@@ -86,11 +86,11 @@ void Engine::Run()
 
     QueryPerformanceCounter(&currentTime);
 
-    float targetFrameTime = 120.0f; // 120 FPS ¸ñÇ¥.
-    float oneFrameTime = 1.0f / targetFrameTime; // ÇÑ ÇÁ·¹ÀÓ ½Ã°£ (ÃÊ ´ÜÀ§).
+    float targetFrameTime = 120.0f; // 120 FPS ï¿½ï¿½Ç¥.
+    float oneFrameTime = 1.0f / targetFrameTime; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½).
 
-    // À¯Áö.
-    // ¸Þ½ÃÁö È®ÀÎ (°ÔÀÓ ·çÇÁ).
+    // ï¿½ï¿½ï¿½ï¿½.
+    // ï¿½Þ½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½).
     MSG message = {};
     while (message.message != WM_QUIT)
     {
@@ -98,27 +98,27 @@ void Engine::Run()
         {
             break;
         }
-        // ¸Þ½ÃÁö È®ÀÎ (Ã¢ ¸Þ½ÃÁö È®ÀÎ ·ÎÁ÷).
+        // ï¿½Þ½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (Ã¢ ï¿½Þ½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½).
         if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
         {
-            // º¯È¯.
+            // ï¿½ï¿½È¯.
             TranslateMessage(&message);
 
-            // º¸³»±â.
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
             DispatchMessage(&message);
         }
         else
         {
             QueryPerformanceCounter(&currentTime);
 
-            // Delta Time °è»ê.
+            // Delta Time ï¿½ï¿½ï¿½.
             float deltaTime =
                 static_cast<float>(currentTime.QuadPart - previousTime.QuadPart)
                 / static_cast<float>(frequency.QuadPart);
 
             if (deltaTime >= oneFrameTime)
             {
-                // FPS Å¸ÀÌÆ² ¹Ù¿¡ Ç¥½Ã.
+                // FPS Å¸ï¿½ï¿½Æ² ï¿½Ù¿ï¿½ Ç¥ï¿½ï¿½.
                /* char buffer[256] = {};
                 sprintf_s(buffer, 256, "DirectX_11 | FPS: %d", static_cast<int>(ceil(1.0f / deltaTime)));
                 SetWindowTextA(window->handle, buffer);*/
@@ -130,12 +130,12 @@ void Engine::Run()
 
                 // RenderFrame();
 
-                 // Input Ã³¸®
+                 // Input Ã³ï¿½ï¿½
                 input->SavePreviousKeyStates();
                 input->SavePreviousMouseStates();
                 input->ProcessInput();
 
-                // ÀÌÀü ÇÁ·¹ÀÓ¿¡ Ãß°¡ ¹× »èÁ¦ ¿äÃ»µÈ ¾×ÅÍ Ã³¸®
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
                 if (mainLevel)
                 {
                     static bool isLevelInitialized = false;
@@ -148,7 +148,7 @@ void Engine::Run()
                     renderer->OnRender(mainLevel);
                 }
 
-                // ÀÌÀü ½Ã°£ ¾÷µ¥ÀÌÆ®.
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®.
                 previousTime = currentTime;
             }
         }

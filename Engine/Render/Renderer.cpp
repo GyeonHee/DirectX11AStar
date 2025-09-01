@@ -386,7 +386,7 @@ void Renderer::DrawToRenderTexturePass(std::shared_ptr<Level>& level)
 void Renderer::DrawFinalPass(std::shared_ptr<Level>& level)
 {
     // 화면을 원하는색으로 클리어 
-    float color[] = { 0.2f, 0.6f, 0.8f, 1.0f };
+    float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     Clear(&renderTargetView, color, depthStencilView);
 
     //// ������ �� �ؽ�ó ���ε�.
@@ -406,6 +406,9 @@ void Renderer::DrawFinalPass(std::shared_ptr<Level>& level)
         level->GetLight()->OnRender();
     }
 
+
+    // 커스텀 렌더링 (인스턴싱 등)
+    level->OnRenderCustom();
 
     // 이제 모든 Actor 렌더링 (StaticMeshComponent는 비활성화됨)
     for (uint32 ix = 0; ix < level->ActorCount(); ++ix)
